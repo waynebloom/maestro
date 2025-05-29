@@ -1,13 +1,11 @@
-Maestro is a sample project that demonstrates an architecture pattern that I'm currently calling "ViewModelOwner".
+Maestro is a sample project that demonstrates a complex architecture pattern that I'm calling "ViewModelOwner".
 
 ## The Use Case
 
 Maestro [theoretically] demonstrates a pattern for an app with multiple distinct workflows (sequences of screens). These workflows each have two critical requirements.
 - Some form of **_shared state_**, persisting only for as long as the workflow's **_nav graph_** does.
-- One or more **_navigation destinations_** that can be used by **_all_** of the workflows.
-  - The state of this destination must also be controlled (and therefore owned) by the top-level workflow.
-
-In Maestro, the workflows are represented by instruments. When you select an instrument (top-level workflow & shared state), you must also select a piece of music (reusable navigation destination).
+- A **_destination_** that can be used by **_one or more_** of the workflows.
+  - A portion of the state/logic of this destination must be controlled (and therefore owned) by the top-level workflow.
 
 ## Getting Started
 
@@ -50,7 +48,7 @@ navigation<PianoSectionRoute> {
 }
 ```
 
-This structure immediately begs a question: if `PianoRoute` and `SheetMusicRoute` need to share _complex_ state, how do we avoid having a single `ViewModel` for the entire "piano" workflow?
+Now, if `PianoRoute` and `SheetMusicRoute` need to share _complex_ state, how do we avoid having a single `ViewModel` for the entire workflow?
 
 ## The "Shared View Model"
 
@@ -62,7 +60,7 @@ val viewModel = hiltViewModel()
 
 The `ViewModel` instance returned from `hiltViewModel()` will be scoped to the nearest `composable` destination of the current nav graph. This is not what we need.
 
-We can create an extension which scopes the returned instance to a `navigation` (graph) instead of a `composable` (destination).
+Instead, we can use an extension which scopes the returned instance to a `navigation` (graph) instead of a `composable` (destination).
 ```
 @Composable
 inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(
